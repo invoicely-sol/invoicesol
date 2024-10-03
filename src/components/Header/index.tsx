@@ -5,8 +5,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
 import menuData from "./menuData";
+import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
+import "../../styles/wallet.css";
 
 const Header = () => {
   const { data: session } = useSession();
@@ -309,12 +310,14 @@ const Header = () => {
                       >
                         Sign Out
                       </button>
+                      
                     )}
+                    <WalletMultiButton className="wallet-button" />
                   </>
                 ) : (
                   <>
                     {pathUrl !== "/" ? (
-                      <>
+                      <div className="flex gap-3">
                         <Link
                           href="/signin"
                           className="px-7 py-3 text-base font-medium text-dark hover:opacity-70 dark:text-white"
@@ -327,9 +330,10 @@ const Header = () => {
                         >
                           Sign Up
                         </Link>
-                      </>
+                        <WalletMultiButton className="wallet-button"/>
+                      </div>
                     ) : (
-                      <>
+                      <div>
                         <Link
                           href="/signin"
                           className={`px-7 py-3 text-base font-medium hover:opacity-70 ${
@@ -348,10 +352,12 @@ const Header = () => {
                         >
                           Sign Up
                         </Link>
-                      </>
+                        <WalletMultiButton />
+                      </div>
                     )}
                   </>
-                )}
+                )
+                }
               </div>
             </div>
           </div>

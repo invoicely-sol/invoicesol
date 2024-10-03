@@ -10,6 +10,7 @@ import "../styles/prism-vsc-dark-plus.css";
 import ToasterContext from "./api/contex/ToasetContex";
 import { useEffect, useState } from "react";
 import PreLoader from "@/components/Common/PreLoader";
+import AppWalletProvider from "@/components/AppWalletProvider/AppWalletProvider";
 
 export default function RootLayout({
   children,
@@ -35,6 +36,7 @@ export default function RootLayout({
           <PreLoader />
         ) : (
           <SessionProvider>
+            <AppWalletProvider>
             <ThemeProvider
               attribute="class"
               enableSystem={false}
@@ -46,6 +48,7 @@ export default function RootLayout({
               <Footer />
               <ScrollToTop />
             </ThemeProvider>
+            </AppWalletProvider>
           </SessionProvider>
         )}
       </body>
