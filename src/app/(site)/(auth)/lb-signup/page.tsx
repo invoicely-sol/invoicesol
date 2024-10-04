@@ -7,7 +7,7 @@ export const metadata: Metadata = {
     "Sign Up | Invoicely SaaS Starter Kit and Boilerplate for Next.js",
 };
 
-const SbSignupPage = () => {
+const LbSignupPage = () => {
   return (
     <>
       <Breadcrumb pageName="Business - Sign Up Page" />
@@ -17,4 +17,4 @@ const SbSignupPage = () => {
   );
 };
 
-export default SbSignupPage;
+export default LbSignupPage;

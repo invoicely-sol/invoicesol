@@ -1,4 +1,4 @@
-import { Document, model, Schema } from "mongoose";
+import { Document, model, models ,Schema } from "mongoose";
 
 export interface IUser extends Document{
   name: String,
@@ -13,8 +13,8 @@ const UserSchema =  new Schema<IUser>({
 })
 
 
-const SbUser = model<IUser>('SbUser', UserSchema);
-const LgUser = model<IUser>('LgUser', UserSchema);
-const Investor = model<IUser>('Investor', UserSchema);
+const SbUser = models.SbUser ||  model<IUser>('SbUser', UserSchema);
+const LgUser = models.LgUser || model<IUser>('LgUser', UserSchema);
+const Investor = models.Investor || model<IUser>('Investor', UserSchema);
 
 export {SbUser, LgUser, Investor}

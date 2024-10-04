@@ -18,19 +18,19 @@ export default function   SignUp() {
               icon={<Building className="h-12 w-12" />}
               title="Small Business"
               description="Upload and manage your invoices."
-              href="/small-business"
+              href="/sb-signup"
             />
             <RoleCard
               icon={<Briefcase className="h-12 w-12" />}
               title="Large Business"
               description="Review and approve invoices from your partners."
-              href="/large-business"
+              href="/lb-signup"
             />
             <RoleCard
               icon={<Banknote className="h-12 w-12" />}
               title="Investor"
               description="Invest in approved invoices for returns."
-              href="/investor"
+              href="/investor-signup"
             />
           </div>
         </section>
@@ -54,7 +54,7 @@ function RoleCard({ icon, title, description, href }: {
       <CardContent>
         <CardDescription>{description}</CardDescription>
       </CardContent>
-      <CardFooter className="mt-auto">
+      <CardFooter className="mt-auto px-4">
         <Button asChild className="w-full">
           <Link href={href}>Sign Up / Sign In as {title}</Link>
         </Button>
