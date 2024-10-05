@@ -13,7 +13,7 @@ const SbSigninPage = () => {
     <>
       <Breadcrumb pageName="Sign In Page" />
 
-      <CustomerSignin />
+      <CustomerSignin role="business-sm"/>
     </>
   );
 };

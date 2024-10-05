@@ -9,9 +9,10 @@ import { useState } from "react";
 import MagicLink from "../MagicLink";
 import Loader from "@/components/Common/Loader";
 
-const CustomerSignUp = () => {
+const CustomerSignUp = ({role}: {role: string}) => {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
+  console.log(role);
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
@@ -21,7 +22,7 @@ const CustomerSignUp = () => {
     const value = Object.fromEntries(data.entries());
     const finalData = { ...value };
 
-    fetch("/api/register", {
+    fetch("/api/auth/" +role+ "/signup", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -32,7 +33,7 @@ const CustomerSignUp = () => {
       .then((data) => {
         toast.success("Successfully registered");
         setLoading(false);
-        router.push("/signin");
+        router.push("sb-signin");
       })
       .catch((err) => {
         toast.error(err.message);

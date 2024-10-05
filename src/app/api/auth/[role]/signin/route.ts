@@ -1,10 +1,11 @@
-import { Investor, LgUser, SbUser } from "@/models/users";
+import { Investor, LgUser, SbUser } from "@/models/db";
 import Error from "next/error";
 import { NextRequest, NextResponse } from "next/server";
 import {z} from "zod"
 import connectMongo from "@/utils/connect-mongo";
 import { useSearchParams } from "next/navigation";
 import { sign } from "jsonwebtoken";
+import { cookies } from "next/headers";
 
 export async function POST(req: NextRequest, {params}: {params: {role: string}}) {
   const role = params.role;
@@ -46,6 +47,15 @@ export async function POST(req: NextRequest, {params}: {params: {role: string}})
       email: body.email,
       id: foundUser._id
     }, process.env.JWT_SECRET as string)
+
+    const setCookie = cookies().set({
+      name: 'invoicely',
+      value: jwtToken,
+      httpOnly: true, // Make the cookie HTTP-only
+      secure: true,   // Use secure flag in production
+      maxAge: 60 * 60 * 24 * 7, // 1 week
+      path: '/'
+    });
 
     return NextResponse.json({token: jwtToken, role: role})
   } catch(e: any){

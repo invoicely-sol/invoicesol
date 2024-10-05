@@ -13,7 +13,7 @@ const InvestorSigninPage = () => {
     <>
       <Breadcrumb pageName="Sign In Page" />
 
-      <CustomerSignin />
+      <CustomerSignin role="investor"/>
     </>
   );
 };

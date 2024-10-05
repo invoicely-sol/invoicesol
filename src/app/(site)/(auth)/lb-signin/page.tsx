@@ -13,7 +13,7 @@ const LbSigninPage = () => {
     <>
       <Breadcrumb pageName="Sign In Page" />
 
-      <CustomerSignin />
+      <CustomerSignin role="business-lg"/>
     </>
   );
 };

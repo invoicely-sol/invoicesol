@@ -9,18 +9,40 @@ import SocialSignIn from "../SocialSignIn";
 import SwitchOption from "../SwitchOption";
 import MagicLink from "../MagicLink";
 import Loader from "@/components/Common/Loader";
+import { decode, verify } from "jsonwebtoken";
+import { cookies } from "next/headers";
 
-const CustomerSignin = () => {
+const CustomerSignin = ({role}: {role:string}) => {
   const router = useRouter();
 
   const [loginData, setLoginData] = useState({
     email: "",
     password: "",
-    checkboxToggle: false,
   });
-
-
   const [loading, setLoading] = useState(false);
+
+  const loginUser = async (e: any) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const data = await fetch("/api/auth/" +role+ "/signin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(loginData),
+    })
+    const resp = await data.json();
+    if(resp.error){
+      toast.error("Invalid Login!");
+      setLoading(false);
+    } else {
+      const token = resp.token;
+      toast.success("Sign In Successful");
+      setLoading(false);
+      router.push("/invoices")
+    }
+  };
 
 
   return (
@@ -79,7 +101,7 @@ const CustomerSignin = () => {
                   </div>
                   <div className="mb-9">
                     <button
-                      onClick={() => {}}
+                      onClick={loginUser}
                       type="submit"
                       className="flex w-full cursor-pointer items-center justify-center rounded-md border border-primary bg-primary px-5 py-3 text-base text-white transition duration-300 ease-in-out hover:bg-primary/90"
                     >

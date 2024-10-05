@@ -26,6 +26,7 @@ export default function Component() {
   const [paymentTerms, setPaymentTerms] = useState("")
   const [tokenizePercentage, setTokenizePercentage] = useState(50)
   const [walletConnected, setWalletConnected] = useState(false);
+  const [walletPublicKey, setWalletPublicKey] = useState("");
   const { toast } = useToast();
   const wallet = useWallet();
   const {connection} = useConnection();
@@ -33,6 +34,7 @@ export default function Component() {
   useEffect(() => {
     if(wallet.publicKey !== null && connection !== null){
       setWalletConnected(true);
+      setWalletPublicKey(wallet.publicKey.toString());
     } else {
       setWalletConnected(false);
     }
@@ -68,9 +70,30 @@ export default function Component() {
     setCurrency("USD");
   }
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     // Here you would typically send the data to your backend
+    const data = await fetch("/api/invoice/business-sm/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(
+        {
+          smallBusiness: businessName,
+          largeBusiness: largeBusiness,
+          amount: parseFloat(amount),
+          invoiceNumber: invoiceNumber,
+          invoiceDate: invoiceDate,
+          dueDate: dueDate,
+          paymentTerms: paymentTerms,
+          smallBusinessAddress: walletPublicKey,
+          percentageGiven: tokenizePercentage,
+          status:'Pending'
+        }
+      ),
+    })
+    const resp = await data.json();
     toast({
       title: "Invoice submitted successfully!",
       description: "Our team is reviewing it. We'll notify you once it's approved.",

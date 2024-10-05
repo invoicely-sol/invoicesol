@@ -1,4 +1,4 @@
-import { Investor, LgUser, SbUser } from "@/models/users";
+import { Investor, LgUser, SbUser } from "@/models/db";
 import Error from "next/error";
 import { NextRequest, NextResponse } from "next/server";
 import {z} from "zod"

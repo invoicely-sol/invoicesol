@@ -4,7 +4,7 @@ import { Building, Briefcase, Banknote } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 
-export default function   SignUp() {
+export default function SignUp() {
   return (
     <div className="flex min-h-screen flex-col">
       <main className="container flex-1 py-12">
