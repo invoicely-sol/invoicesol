@@ -11,6 +11,7 @@ import ToasterContext from "./api/contex/ToasetContex";
 import { useEffect, useState } from "react";
 import PreLoader from "@/components/Common/PreLoader";
 import AppWalletProvider from "@/components/AppWalletProvider/AppWalletProvider";
+import { CookiesProvider } from "react-cookie";
 
 export default function RootLayout({
   children,
@@ -36,6 +37,7 @@ export default function RootLayout({
           <PreLoader />
         ) : (
           <SessionProvider>
+            <CookiesProvider>
             <AppWalletProvider>
             <ThemeProvider
               attribute="class"
@@ -49,6 +51,7 @@ export default function RootLayout({
               <ScrollToTop />
             </ThemeProvider>
             </AppWalletProvider>
+            </CookiesProvider>
           </SessionProvider>
         )}
       </body>

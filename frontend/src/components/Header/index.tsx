@@ -3,16 +3,17 @@ import { signOut, useSession } from "next-auth/react";
 import { useTheme } from "next-themes";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import menuData from "./menuData";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import "../../styles/wallet.css";
+import { useCookies } from 'react-cookie';
 
 const Header = () => {
-  const { data: session } = useSession();
 
   const pathUrl = usePathname();
+  const router = useRouter()
   // Navbar toggle
   const [navbarOpen, setNavbarOpen] = useState(false);
   const navbarToggleHandler = () => {
@@ -43,6 +44,11 @@ const Header = () => {
   };
 
   const { theme, setTheme } = useTheme();
+  const [cookies, setCookie, removeCookie] = useCookies(['invoicely']);
+
+  useEffect(()=> {
+    console.log(cookies);
+  }, [cookies])
 
   return (
     <>
@@ -287,25 +293,25 @@ const Header = () => {
                   </span>
                 </button>
 
-                {session?.user ? (
+                {cookies.invoicely ? (
                   <>
                     <p
                       className={`loginBtn px-7 py-3 text-base font-medium ${
                         !sticky && pathUrl === "/" ? "text-white" : "text-dark"
                       }`}
                     >
-                      {session?.user?.name}
+                      {}
                     </p>
                     {pathUrl !== "/" || sticky ? (
                       <button
-                        onClick={() => signOut()}
+                        onClick={() => {removeCookie("invoicely"); router.push('/')}}
                         className="signUpBtn rounded-lg bg-primary bg-opacity-100 px-6 py-3 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-20 hover:text-dark"
                       >
                         Sign Out
                       </button>
                     ) : (
                       <button
-                        onClick={() => signOut()}
+                        onClick={() => {removeCookie("invoicely"); router.push('/')}}
                         className="signUpBtn rounded-lg bg-white bg-opacity-20 px-6 py-3 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark"
                       >
                         Sign Out

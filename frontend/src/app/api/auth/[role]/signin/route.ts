@@ -51,7 +51,7 @@ export async function POST(req: NextRequest, {params}: {params: {role: string}})
     const setCookie = cookies().set({
       name: 'invoicely',
       value: jwtToken,
-      httpOnly: true, // Make the cookie HTTP-only
+      httpOnly: false, // Make the cookie HTTP-only
       secure: true,   // Use secure flag in production
       maxAge: 60 * 60 * 24 * 7, // 1 week
       path: '/'

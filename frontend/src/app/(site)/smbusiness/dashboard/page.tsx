@@ -5,14 +5,6 @@ import { Bell, ChevronDown, Filter, LogOut, Search, Settings, User } from "lucid
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -30,6 +22,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { useRouter } from "next/navigation"
 
 
 
@@ -37,6 +30,7 @@ export default function InvoiceDashboard() {
   const [selectedStatus, setSelectedStatus] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
   const [invoices, setInvoices] = useState([]);
+  const router = useRouter();
 
   const filteredInvoices = invoices.length === 0 ? [] : invoices.filter((invoice: {
       "_id": string,
@@ -55,17 +49,33 @@ export default function InvoiceDashboard() {
       return matchesStatus && matchesSearch
     })
 
-  useEffect(() => {
-    async function fetchData(){
-      const data = await fetch("/api/invoice/business-sm/retrieve", {
-        method: "GET"
-      })
-      const resp = await data.json();
-      console.log(resp.data);
-      setInvoices(resp.data);
-    }
-    fetchData();
-  }, []);
+    useEffect(() => {
+      async function fetchData() {
+        try {
+          const response = await fetch("/api/invoice/business-sm/retrieve", {
+            method: "GET"
+          });
+          
+          // Get the status code
+          const status = response.status;
+
+          console.log("Status Code:", status);
+    
+          if (response.ok) {  // If the response status code is in the range 200-299
+            const resp = await response.json();
+            setInvoices(resp.data);
+          } else {
+            console.error(`Error: ${status} - ${response.statusText}`);
+            router.push('/sb-signin')
+          }
+        } catch (error) {
+          console.error("Fetch error:", error);
+          // Handle network or other errors
+        }
+      }
+    
+      fetchData();
+    }, []);
 
   useEffect(() => {
     console.log(invoices)
