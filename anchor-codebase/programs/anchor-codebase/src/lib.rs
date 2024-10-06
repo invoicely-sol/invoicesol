@@ -1,6 +1,6 @@
 use anchor_lang::prelude::*;
 
-declare_id!("Fg6PaFpoGXkYsidMpWTK6W2BeZ7FEfcYkg476zPFsLnS");
+declare_id!("5c2Lu6R3bVrvVpWhMnGWRxcbpVR1vui8gK8hiAGCSj5F");
 
 #[program]
 pub mod invoice_program {
@@ -33,7 +33,7 @@ pub mod invoice_program {
 
 #[derive(Accounts)]
 pub struct CreateInvoice<'info> {
-    #[account(init, payer = user, space = 8 + 32 + 32 + 8 + 8 + 8 + 32)]
+    #[account(init, payer = user, space = Invoice::SPACE)]
     pub invoice: Account<'info, Invoice>,
     #[account(mut)]
     pub user: Signer<'info>,
@@ -55,4 +55,14 @@ pub struct Invoice {
     pub invoice_date: i64,
     pub due_date: i64,
     pub status: String,
+}
+
+impl Invoice {
+    pub const SPACE: usize = 8 +  // discriminator
+                             32 + // small_business (max size)
+                             32 + // large_business (max size)
+                             8 +  // amount
+                             8 +  // invoice_date
+                             8 +  // due_date
+                             32;  // status (max size for String)
 }
