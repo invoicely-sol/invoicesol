@@ -74,29 +74,28 @@ export default function InvoiceManagement() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
 
-   // Function to retrieve invoices
-   const fetchInvoices = async () => {
-    try {
-        const response = await fetch("/api/invoice/admin/retrieve", {
-            method: "GET",
-            credentials: 'include', // Include cookies for authentication
-        });
-        const data = await response.json();
-        if (response.ok) {
-            console.log("Retrieved Invoices:", data.data); // Log retrieved invoices
-            setInvoices(data.data); // Update state with retrieved invoices
-        } else {
-            console.error("Error fetching invoices:", data.error);
-        }
+  // Function to retrieve invoices
+  const fetchInvoices = async () => {
+  try {
+      const response = await fetch("/api/invoice/admin/retrieve-all", {
+          method: "GET",
+      });
+      const data = await response.json();
+      console.log(data);
+      if (response.ok) {
+          console.log("Retrieved Invoices:", data.data); 
+      } else {
+          console.error("Error fetching invoices:", data.error);
+      }
     } catch (error) {
         console.error("Fetch error:", error);
     }
-};
+  };
 
-// Fetch invoices on component mount
-useEffect(() => {
-    fetchInvoices();
-}, []);
+  // Fetch invoices on component mount
+  useEffect(() => {
+      fetchInvoices();
+  }, []);
 
 
   const filteredInvoices = invoices.filter(invoice =>
