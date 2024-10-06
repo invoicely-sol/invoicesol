@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -74,6 +74,31 @@ export default function InvoiceManagement() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
 
+   // Function to retrieve invoices
+   const fetchInvoices = async () => {
+    try {
+        const response = await fetch("/api/invoice/admin/retrieve", {
+            method: "GET",
+            credentials: 'include', // Include cookies for authentication
+        });
+        const data = await response.json();
+        if (response.ok) {
+            console.log("Retrieved Invoices:", data.data); // Log retrieved invoices
+            setInvoices(data.data); // Update state with retrieved invoices
+        } else {
+            console.error("Error fetching invoices:", data.error);
+        }
+    } catch (error) {
+        console.error("Fetch error:", error);
+    }
+};
+
+// Fetch invoices on component mount
+useEffect(() => {
+    fetchInvoices();
+}, []);
+
+
   const filteredInvoices = invoices.filter(invoice =>
     invoice.smallBusinessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     invoice.largeBusinessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -95,18 +120,30 @@ export default function InvoiceManagement() {
   }
 
   const openConfirmModal = async(invoice: Invoice, type: "approve" | "reject") => {
-    setSelectedInvoice(invoice)
-    setActionType(type)
-    setIsConfirmModalOpen(true)
+    // setSelectedInvoice(invoice)
+    // setActionType(type)
+    // setIsConfirmModalOpen(true)
 
     if(type === "approve") {
       // API Call here
-      const data = await fetch("/api/invoice/business-sm/create", {
+      const data = await fetch("/api/invoice/admin/approval", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+        body: JSON.stringify(
+          {
+            smallBusiness: invoice.smallBusinessName,
+            largeBusiness: invoice.largeBusinessName,
+            amount: invoice.amount.toString(),
+            invoiceDate: invoice.invoiceDate,
+            dueDate: invoice.dueDate,
+          }
+        ),
       })
+
+      const resp = await data.json();
+      console.log(resp);
     }
   }
 
