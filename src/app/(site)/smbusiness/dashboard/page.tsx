@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Bell, ChevronDown, Filter, LogOut, Search, Settings, User } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -31,60 +31,45 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 
-const invoices = [
-  {
-    id: "INV001",
-    business: "Acme Corp",
-    amount: 5000,
-    status: "Approved",
-    dateUploaded: "2023-05-01",
-    lastUpdated: "2023-05-03",
-  },
-  {
-    id: "INV002",
-    business: "Globex Inc",
-    amount: 7500,
-    status: "Pending",
-    dateUploaded: "2023-05-02",
-    lastUpdated: "2023-05-02",
-  },
-  {
-    id: "INV003",
-    business: "Initech",
-    amount: 3000,
-    status: "Rejected",
-    dateUploaded: "2023-05-03",
-    lastUpdated: "2023-05-04",
-  },
-  {
-    id: "INV004",
-    business: "Umbrella Corp",
-    amount: 10000,
-    status: "Approved",
-    dateUploaded: "2023-05-04",
-    lastUpdated: "2023-05-06",
-  },
-  {
-    id: "INV005",
-    business: "Hooli",
-    amount: 15000,
-    status: "Pending",
-    dateUploaded: "2023-05-05",
-    lastUpdated: "2023-05-05",
-  },
-]
+
 
 export default function InvoiceDashboard() {
   const [selectedStatus, setSelectedStatus] = useState("All")
   const [searchQuery, setSearchQuery] = useState("")
+  const [invoices, setInvoices] = useState([]);
 
-  const filteredInvoices = invoices.filter((invoice) => {
-    const matchesStatus = selectedStatus === "All" || invoice.status === selectedStatus
-    const matchesSearch =
-      invoice.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      invoice.business.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchesStatus && matchesSearch
-  })
+  const filteredInvoices = invoices.length === 0 ? [] : invoices.filter((invoice: {
+      "_id": string,
+      "largeBusiness": string,
+      "status": string,
+      "amount": number,
+      "percentageGiven": number,
+      "invoiceDate": Date,
+      "dueDate": Date,
+      "invoiceNumber": string
+    }) => {
+      const matchesStatus = selectedStatus === "All" || invoice.status === selectedStatus
+      const matchesSearch =
+        invoice.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        invoice.largeBusiness?.toLowerCase().includes(searchQuery.toLowerCase())
+      return matchesStatus && matchesSearch
+    })
+
+  useEffect(() => {
+    async function fetchData(){
+      const data = await fetch("/api/invoice/business-sm/retrieve", {
+        method: "GET"
+      })
+      const resp = await data.json();
+      console.log(resp.data);
+      setInvoices(resp.data);
+    }
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    console.log(invoices)
+  }, [invoices])
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -100,7 +85,7 @@ export default function InvoiceDashboard() {
   }
 
   return (
-    <div className="flex flex-col py-20 px-10">
+    <div className="flex flex-col py-20">
       <main className="flex-1 p-6">
         <h1 className="text-3xl font-bold mb-6">Invoice Dashboard</h1>
         <div className="flex justify-between items-center mb-6">
@@ -151,6 +136,7 @@ export default function InvoiceDashboard() {
                   <TableHead>Invoice Number</TableHead>
                   <TableHead>Business Name</TableHead>
                   <TableHead>Amount</TableHead>
+                  <TableHead>Percentage Given</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead>Date Uploaded</TableHead>
                   <TableHead>Last Updated</TableHead>
@@ -158,16 +144,26 @@ export default function InvoiceDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredInvoices.map((invoice) => (
-                  <TableRow key={invoice.id}>
-                    <TableCell>{invoice.id}</TableCell>
-                    <TableCell>{invoice.business}</TableCell>
+                {filteredInvoices.map((invoice: {
+                      "_id": string,
+                      "largeBusiness": string,
+                      "status": string,
+                      "amount": number,
+                      "percentageGiven": number,
+                      "invoiceDate": Date,
+                      "dueDate": Date,
+                      "invoiceNumber": string
+                    }) => (
+                  <TableRow key={invoice.invoiceNumber}>
+                    <TableCell>{invoice.largeBusiness}</TableCell>
+                    <TableCell>{invoice.largeBusiness}</TableCell>
                     <TableCell>${invoice.amount.toLocaleString()}</TableCell>
+                    <TableCell>{invoice.percentageGiven}%</TableCell>
                     <TableCell>
                       <Badge className={getStatusColor(invoice.status)}>{invoice.status}</Badge>
                     </TableCell>
-                    <TableCell>{invoice.dateUploaded}</TableCell>
-                    <TableCell>{invoice.lastUpdated}</TableCell>
+                    <TableCell>{new Date(invoice.dueDate).toDateString()}</TableCell>
+                    <TableCell>{new Date(invoice.dueDate).toDateString()}</TableCell>
                     <TableCell>
                       <Dialog>
                         <DialogTrigger asChild>
@@ -177,7 +173,7 @@ export default function InvoiceDashboard() {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Invoice Details - {invoice.id}</DialogTitle>
+                            <DialogTitle>Invoice Details - {invoice.invoiceNumber}</DialogTitle>
                             <DialogDescription>
                               View detailed information about this invoice.
                             </DialogDescription>
@@ -185,11 +181,15 @@ export default function InvoiceDashboard() {
                           <div className="grid gap-4 py-4">
                             <div className="grid grid-cols-4 items-center gap-4">
                               <span className="font-medium">Business:</span>
-                              <span className="col-span-3">{invoice.business}</span>
+                              <span className="col-span-3">{invoice.largeBusiness}</span>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <span className="font-medium">Amount:</span>
                               <span className="col-span-3">${invoice.amount.toLocaleString()}</span>
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                              <span className="font-medium">Percentage Given:</span>
+                              <span className="col-span-3">{invoice.percentageGiven}%</span>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
                               <span className="font-medium">Status:</span>
@@ -200,12 +200,12 @@ export default function InvoiceDashboard() {
                               </span>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <span className="font-medium">Date Uploaded:</span>
-                              <span className="col-span-3">{invoice.dateUploaded}</span>
+                              <span className="font-medium">Due Date:</span>
+                              <span className="col-span-3">{new Date(invoice.dueDate).toDateString()}</span>
                             </div>
                             <div className="grid grid-cols-4 items-center gap-4">
-                              <span className="font-medium">Last Updated:</span>
-                              <span className="col-span-3">{invoice.lastUpdated}</span>
+                              <span className="font-medium">Invoice Date:</span>
+                              <span className="col-span-3">{new Date(invoice.invoiceDate).toDateString()}</span>
                             </div>
                           </div>
                         </DialogContent>

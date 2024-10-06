@@ -18,7 +18,8 @@ export interface IInvoice{
   percentageGiven: number,
   smallBusinessEmail: string,
   lgBusinessEmail: string,
-  status: string
+  status: string,
+  // owner: [{'address': amount}]
 }
 
 const UserSchema =  new Schema<IUser>({

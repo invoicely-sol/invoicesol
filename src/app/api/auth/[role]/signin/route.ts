@@ -4,8 +4,8 @@ import { NextRequest, NextResponse } from "next/server";
 import {z} from "zod"
 import connectMongo from "@/utils/connect-mongo";
 import { useSearchParams } from "next/navigation";
-import { sign } from "jsonwebtoken";
 import { cookies } from "next/headers";
+import { sign } from "jsonwebtoken";
 
 export async function POST(req: NextRequest, {params}: {params: {role: string}}) {
   const role = params.role;
