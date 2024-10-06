@@ -11,7 +11,7 @@ anchor_codebase = "FzCA3TV2MnsHna8LwhW8HwyknW3oTDiWqUPGhfxyQPid"
 url = "https://api.apr.dev"
 
 [provider]
-cluster = "Localnet"
+cluster = "Devnet"
 wallet = "~/.config/solana/id.json"
 
 [scripts]
