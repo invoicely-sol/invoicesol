@@ -17,6 +17,8 @@ export async function POST(req: NextRequest) {
         console.log(body);
         const { smallBusiness, largeBusiness, amount, invoiceDate, dueDate } = body;
 
+        // Do 2 things. make an account of this onto Solana and the address returned should be put into 
+
         // Find the invoice in the database
         const invoice = await Invoice.findOne({
             smallBusiness,
