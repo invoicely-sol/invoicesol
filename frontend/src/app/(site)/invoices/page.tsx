@@ -73,7 +73,7 @@ export default function Component() {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
     // Here you would typically send the data to your backend
-    const data = await fetch("/api/invoice/business-sm/create", {
+    const data = await fetch("/api/invoice/admin/approval", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -243,7 +243,7 @@ export default function Component() {
                 <div className="space-y-6">
                   <div>
                     <Label htmlFor="tokenize-percentage">
-                      Select the percentage of this invoice you'd like to offer for investment
+                      Select the percentage of this invoice you&apos;d like to offer for investment
                     </Label>
                     <div className="flex items-center gap-4">
                       <Slider
@@ -297,7 +297,7 @@ export default function Component() {
               {step === 4 && (
                 <div className="text-center">
                   <h2 className="text-2xl font-bold mb-4">Invoice Submitted Successfully!</h2>
-                  <p className="mb-4">Our team is reviewing your invoice. We'll notify you once it's approved.</p>
+                  <p className="mb-4">Our team is reviewing your invoice. We&apos;ll notify you once it&pos;s approved.</p>
                   <Button onClick={handleResubmission}>Submit Another Invoice</Button>
                 </div>
               )}

@@ -94,10 +94,20 @@ export default function InvoiceManagement() {
     setSelectedInvoice(null)
   }
 
-  const openConfirmModal = (invoice: Invoice, type: "approve" | "reject") => {
+  const openConfirmModal = async(invoice: Invoice, type: "approve" | "reject") => {
     setSelectedInvoice(invoice)
     setActionType(type)
     setIsConfirmModalOpen(true)
+
+    if(type === "approve") {
+      // API Call here
+      const data = await fetch("/api/invoice/business-sm/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+    }
   }
 
   const closeConfirmModal = () => {
