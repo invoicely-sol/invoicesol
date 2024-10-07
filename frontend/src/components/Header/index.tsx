@@ -9,9 +9,10 @@ import menuData from "./menuData";
 import { WalletMultiButton } from "@solana/wallet-adapter-react-ui";
 import "../../styles/wallet.css";
 import { useCookies } from 'react-cookie';
+import smMenuData from "./smMenuData";
 
 const Header = () => {
-
+  let role = ""
   const pathUrl = usePathname();
   const router = useRouter()
   // Navbar toggle
@@ -45,10 +46,14 @@ const Header = () => {
 
   const { theme, setTheme } = useTheme();
   const [cookies, setCookie, removeCookie] = useCookies(['invoicely']);
+  let cookieValue = cookies.invoicely;
+  if(cookieValue){
+    role = cookieValue.role
+  }
 
   useEffect(()=> {
-    console.log(cookies);
-  }, [cookies])
+    console.log(cookieValue);
+  }, [cookieValue])
 
   return (
     <>
@@ -154,7 +159,7 @@ const Header = () => {
                   }`}
                 >
                   <ul className="block lg:ml-8 lg:flex lg:gap-x-8 xl:ml-14 xl:gap-x-12">
-                    {menuData.map((menuItem, index) =>
+                    {(role === "business-sm" ? smMenuData : menuData).map((menuItem, index) =>
                       menuItem.path ? (
                         <li key={index} className="group relative">
                           {pathUrl !== "/" ? (
