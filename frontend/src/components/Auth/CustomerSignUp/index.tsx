@@ -33,7 +33,7 @@ const CustomerSignUp = ({role}: {role: string}) => {
       .then((data) => {
         toast.success("Successfully registered");
         setLoading(false);
-        router.push("sb-signin");
+        router.push(role === "business-sm" ? "sb-signin" : (role === "business-lg" ? "lb-signin" : "investor-signin"));
       })
       .catch((err) => {
         toast.error(err.message);
@@ -124,7 +124,7 @@ const CustomerSignUp = ({role}: {role: string}) => {
               <p className="text-body-secondary text-base">
                 Already have an account?
                 <Link
-                  href="/sb-signin"
+                  href= {role === "business-sm" ? "sb-signin" : (role === "business-lg" ? "lb-signin" : "investor-signin")}
                   className="pl-2 text-primary hover:underline"
                 >
                   Sign In

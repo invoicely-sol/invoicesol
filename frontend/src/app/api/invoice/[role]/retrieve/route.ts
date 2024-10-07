@@ -30,7 +30,7 @@ export async function GET(req: NextRequest, {params}: {params: {role: string}}) 
     status: z.string(),
   });
 
-  if(role !== "business-sm"){
+  if(role !== "business-sm" && role !== "business-lg"){
     return NextResponse.json({ error: 'Role Not Found' }, { status: 403 })
   }
   try{

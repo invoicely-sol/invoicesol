@@ -40,7 +40,7 @@ const CustomerSignin = ({role}: {role:string}) => {
       const token = resp.token;
       toast.success("Sign In Successful");
       setLoading(false);
-      router.push("/invoices")
+      router.push(role === "business-sm" ? "/invoices" : (role === "business-lg" ? "/lgbusiness/dashboard" : ""))
     }
   };
 
@@ -117,7 +117,7 @@ const CustomerSignin = ({role}: {role:string}) => {
               </Link>
               <p className="text-body-secondary text-base">
                 Not a member yet?{" "}
-                <Link href="/sb-signup" className="text-primary hover:underline">
+                <Link href= {role === "business-sm" ? "sb-signup" : (role === "business-lg" ? "lb-signup" : "investor-signup")} className="text-primary hover:underline">
                   Sign Up
                 </Link>
               </p>
