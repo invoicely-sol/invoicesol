@@ -16,6 +16,7 @@ export async function POST(req: NextRequest, {params}: {params: {role: string}})
     largeBusiness: z.string(),
     amount: z.number(),
     invoiceNumber: z.string(),
+    lgBusinessEmail: z.string(),
     invoiceDate: z.preprocess(
       (arg) => (typeof arg === 'string' ? new Date(arg) : arg),
       z.date()
@@ -81,7 +82,7 @@ if (cookieValue) {
           smallBusinessAddress: validateData.data?.smallBusinessAddress,
           percentageGiven: validateData.data?.percentageGiven,
           smallBusinessEmail: verifyToken?.email,
-          lgBusinessEmail: "dummy@gmail.com",
+          lgBusinessEmail: validateData.data?.lgBusinessEmail,
           status: validateData.data?.status
         });
 

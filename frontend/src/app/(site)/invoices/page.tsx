@@ -27,6 +27,7 @@ export default function Component() {
   const [tokenizePercentage, setTokenizePercentage] = useState(50)
   const [walletConnected, setWalletConnected] = useState(false);
   const [walletPublicKey, setWalletPublicKey] = useState("");
+  const [lgBusinessEmail, setLgBusinessEmail] = useState("")
   const { toast } = useToast();
   const wallet = useWallet();
   const {connection} = useConnection();
@@ -67,10 +68,12 @@ export default function Component() {
     setAmount("");
     setDueDate("");
     setPaymentTerms("");
+    setLgBusinessEmail("");
     setCurrency("USD");
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
+    console.log(lgBusinessEmail);
     event.preventDefault()
     // Here you would typically send the data to your backend
     const data = await fetch("/api/invoice/business-sm/create", {
@@ -82,6 +85,7 @@ export default function Component() {
         {
           smallBusiness: businessName,
           largeBusiness: largeBusiness,
+          lgBusinessEmail: lgBusinessEmail,
           amount: parseFloat(amount),
           invoiceNumber: invoiceNumber,
           invoiceDate: invoiceDate,
@@ -167,6 +171,16 @@ export default function Component() {
                         placeholder="Enter the name of the company you've invoiced"
                         value={largeBusiness}
                         onChange={(e) => setLargeBusiness(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="grid gap-2">
+                      <Label htmlFor="large-business-email">Large Business Email</Label>
+                      <Input
+                        id="large-business-email"
+                        placeholder="Enter your business Email"
+                        value={lgBusinessEmail}
+                        onChange={(e) => setLgBusinessEmail(e.target.value)}
                         required
                       />
                     </div>
@@ -261,6 +275,7 @@ export default function Component() {
                     <h3 className="font-semibold mb-2">Review Your Information</h3>
                     <p>Business Name: {businessName}</p>
                     <p>Large Business: {largeBusiness}</p>
+                    <p>Large Business Email: {lgBusinessEmail}</p>
                     <p>
                       Amount: {currency} {amount}
                     </p>

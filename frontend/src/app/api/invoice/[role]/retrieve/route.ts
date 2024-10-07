@@ -33,44 +33,90 @@ export async function GET(req: NextRequest, {params}: {params: {role: string}}) 
   if(role !== "business-sm" && role !== "business-lg"){
     return NextResponse.json({ error: 'Role Not Found' }, { status: 403 })
   }
-  try{
 
-    // if(headerData.get("Authentication") === null){
-    //   return NextResponse.json({"error": "Unauthorized"}, {status: 401})
-    // }
-      
-    // const jwt = headers().get("Authentication")?.split(" ")[1];
-    const cookieStore = cookies();
-    const cookieValue = cookieStore.get("invoicely")?.value;
+  if(role === "business-sm"){
+    try{
 
-if (cookieValue) {
-  try {
-    // Decode and parse the cookie value
-    const parsedCookie = JSON.parse(decodeURIComponent(cookieValue));
-
-    // Access jwtToken from the parsed cookie object
-    jwtToken = parsedCookie.jwtToken;
-
-    console.log("JWT Token:", jwtToken);
-  } catch (error) {
-    console.error("Error parsing cookie:", error);
+      // if(headerData.get("Authentication") === null){
+      //   return NextResponse.json({"error": "Unauthorized"}, {status: 401})
+      // }
+        
+      // const jwt = headers().get("Authentication")?.split(" ")[1];
+      const cookieStore = cookies();
+      const cookieValue = cookieStore.get("invoicely")?.value;
+  
+  if (cookieValue) {
+    try {
+      // Decode and parse the cookie value
+      const parsedCookie = JSON.parse(decodeURIComponent(cookieValue));
+  
+      // Access jwtToken from the parsed cookie object
+      jwtToken = parsedCookie.jwtToken;
+  
+      console.log("JWT Token:", jwtToken);
+    } catch (error) {
+      console.error("Error parsing cookie:", error);
+    }
   }
-}
+  
+      console.log("aaaaaaa");
+      console.log("JWT: ", jwtToken)
+      if(jwtToken !== undefined){
+        const verifyToken = verify(jwtToken, process.env.JWT_SECRET as string)
+        console.log("Verify: ", verifyToken);
+        if(verifyToken !== null && typeof verifyToken === 'object' && 'email' in verifyToken){
+          const foundInvoice = await Invoice.find({
+            smallBusinessEmail: verifyToken?.email,
+          });
+  
+          console.log("Found Invoice: ", foundInvoice)
+          return NextResponse.json({"data": foundInvoice})
+        }
+    }} catch(e){
+      return NextResponse.json({"error": "Internal Server Error " + e}, {status: 500})
+    }
+  }
+  
+  if(role === "business-lg"){
+    try{
 
-    console.log("aaaaaaa");
-    console.log("JWT: ", jwtToken)
-    if(jwtToken !== undefined){
-      const verifyToken = verify(jwtToken, process.env.JWT_SECRET as string)
-      console.log("Verify: ", verifyToken);
-      if(verifyToken !== null && typeof verifyToken === 'object' && 'email' in verifyToken){
-        const foundInvoice = await Invoice.find({
-          smallBusinessEmail: verifyToken?.email,
-        });
-
-        console.log("Found Invoice: ", foundInvoice)
-        return NextResponse.json({"data": foundInvoice})
-      }
-  }} catch(e){
-    return NextResponse.json({"error": "Internal Server Error " + e}, {status: 500})
+      // if(headerData.get("Authentication") === null){
+      //   return NextResponse.json({"error": "Unauthorized"}, {status: 401})
+      // }
+        
+      // const jwt = headers().get("Authentication")?.split(" ")[1];
+      const cookieStore = cookies();
+      const cookieValue = cookieStore.get("invoicely")?.value;
+  
+  if (cookieValue) {
+    try {
+      // Decode and parse the cookie value
+      const parsedCookie = JSON.parse(decodeURIComponent(cookieValue));
+  
+      // Access jwtToken from the parsed cookie object
+      jwtToken = parsedCookie.jwtToken;
+  
+      console.log("JWT Token:", jwtToken);
+    } catch (error) {
+      console.error("Error parsing cookie:", error);
+    }
+  }
+  
+      console.log("aaaaaaa");
+      console.log("JWT: ", jwtToken)
+      if(jwtToken !== undefined){
+        const verifyToken = verify(jwtToken, process.env.JWT_SECRET as string)
+        console.log("Verify: ", verifyToken);
+        if(verifyToken !== null && typeof verifyToken === 'object' && 'email' in verifyToken){
+          const foundInvoice = await Invoice.find({
+            lgBusinessEmail : verifyToken?.email,
+          });
+  
+          console.log("Found Invoice: ", foundInvoice)
+          return NextResponse.json({"data": foundInvoice})
+        }
+    }} catch(e){
+      return NextResponse.json({"error": "Internal Server Error " + e}, {status: 500})
+    }
   }
   }

@@ -145,6 +145,7 @@ export default function InvoiceManagement() {
             <TableHead>Invoice Number</TableHead>
             <TableHead>Small Business Name</TableHead>
             <TableHead>Large Business Name</TableHead>
+            <TableHead>Large Business Email</TableHead>
             <TableHead>Invoice Date</TableHead>
             <TableHead>Due Date</TableHead>
             <TableHead>Amount</TableHead>
