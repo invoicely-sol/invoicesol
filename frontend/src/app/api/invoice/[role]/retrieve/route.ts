@@ -6,7 +6,7 @@ import { cookies, headers } from "next/headers";
 import { Invoice } from "@/models/db";
 
 export async function GET(req: NextRequest, {params}: {params: {role: string}}) {
-  let decodedToken;
+  let jwtToken;
   const role = params.role;
   console.log(role);
   await connectMongo();
@@ -41,11 +41,26 @@ export async function GET(req: NextRequest, {params}: {params: {role: string}}) 
       
     // const jwt = headers().get("Authentication")?.split(" ")[1];
     const cookieStore = cookies();
-    const jwt = cookieStore.get("invoicely")?.value;
+    const cookieValue = cookieStore.get("invoicely")?.value;
+
+if (cookieValue) {
+  try {
+    // Decode and parse the cookie value
+    const parsedCookie = JSON.parse(decodeURIComponent(cookieValue));
+
+    // Access jwtToken from the parsed cookie object
+    jwtToken = parsedCookie.jwtToken;
+
+    console.log("JWT Token:", jwtToken);
+  } catch (error) {
+    console.error("Error parsing cookie:", error);
+  }
+}
+
     console.log("aaaaaaa");
-    console.log("JWT: ", jwt)
-    if(jwt !== undefined){
-      const verifyToken = verify(jwt, process.env.JWT_SECRET as string)
+    console.log("JWT: ", jwtToken)
+    if(jwtToken !== undefined){
+      const verifyToken = verify(jwtToken, process.env.JWT_SECRET as string)
       console.log("Verify: ", verifyToken);
       if(verifyToken !== null && typeof verifyToken === 'object' && 'email' in verifyToken){
         const foundInvoice = await Invoice.find({
