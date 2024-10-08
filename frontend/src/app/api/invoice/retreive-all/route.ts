@@ -8,7 +8,8 @@ export async function GET(req: NextRequest) {
   try {
     // Fetch all invoices where smallBusinessEmail exists
     const foundInvoices = await Invoice.find({
-      smallBusinessEmail: { $exists: true }
+      smallBusinessEmail: { $exists: true },
+      status: "Approved"
     });
     
     console.log("Found Invoices:", foundInvoices);

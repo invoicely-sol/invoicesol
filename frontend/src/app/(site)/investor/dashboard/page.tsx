@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Bell,
   ChevronDown,
@@ -37,39 +37,35 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
+
+interface Invoice {
+  _id: string;
+  largeBusiness: string;
+  status: string;
+  amount: number;
+  percentageGiven: number;
+  invoiceDate: Date;
+  dueDate: Date;
+  invoiceNumber: string;
+}
 
 export default function InvoiceDashboard() {
   const [selectedStatus, setSelectedStatus] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [invoices, setInvoices] = useState([]);
+  const [invoices, setInvoices] = useState<Invoice[]>([]);
+  const [investmentPercentage, setInvestmentPercentage] = useState<number[]>([0]);
   const router = useRouter();
 
-  const filteredInvoices =
-    invoices.length === 0
-      ? []
-      : invoices.filter(
-          (invoice: {
-            _id: string;
-            largeBusiness: string;
-            status: string;
-            amount: number;
-            percentageGiven: number;
-            invoiceDate: Date;
-            dueDate: Date;
-            invoiceNumber: string;
-          }) => {
-            const matchesStatus =
-              selectedStatus === "All" || invoice.status === selectedStatus;
-            const matchesSearch =
-              invoice.invoiceNumber
-                ?.toLowerCase()
-                .includes(searchQuery.toLowerCase()) ||
-              invoice.largeBusiness
-                ?.toLowerCase()
-                .includes(searchQuery.toLowerCase());
-            return matchesStatus && matchesSearch;
-          },
-        );
+  const filteredInvoices = invoices.filter((invoice) => {
+    const matchesStatus =
+      selectedStatus === "All" || invoice.status === selectedStatus;
+    const matchesSearch =
+      invoice.invoiceNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      invoice.largeBusiness.toLowerCase().includes(searchQuery.toLowerCase());
+    return matchesStatus && matchesSearch;
+  });
 
   useEffect(() => {
     async function fetchData() {
@@ -80,20 +76,13 @@ export default function InvoiceDashboard() {
 
         const data = await response.json();
         setInvoices(data.data);
-
-        console.log(data.data);
       } catch (error) {
         console.error("Fetch error:", error);
-        // Handle network or other errors
       }
     }
 
     fetchData();
   }, []);
-
-  useEffect(() => {
-    // console.log(invoices);
-  }, [invoices]);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -108,10 +97,36 @@ export default function InvoiceDashboard() {
     }
   };
 
+  const handleInvestButton = async (invoiceNumber: string) => {
+    try {
+      const response = await fetch("/api/invoice/investor/invest", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          invoiceNumber,
+          investmentPercentage: investmentPercentage[0],
+        }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Investment updated successfully:", data);
+        // Optionally refresh invoices or update state here
+      } else {
+        console.error("Error updating investment:", data.error);
+      }
+    } catch (error) {
+      console.error("Fetch error:", error);
+    }
+  };
+
   return (
     <div className="flex flex-col py-20">
       <main className="flex-1 p-6">
-        <h1 className="mb-6 text-3xl font-bold">Invoice Dashboard</h1>
+        <h1 className="mb-6 text-3xl font-bold">Investor Dashboard</h1>
         <div className="mb-6 flex items-center justify-between">
           <div className="flex space-x-2">
             <Button
@@ -156,101 +171,62 @@ export default function InvoiceDashboard() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredInvoices.map(
-                  (invoice: {
-                    _id: string;
-                    largeBusiness: string;
-                    status: string;
-                    amount: number;
-                    percentageGiven: number;
-                    invoiceDate: Date;
-                    dueDate: Date;
-                    invoiceNumber: string;
-                  }) => (
-                    <TableRow key={invoice.invoiceNumber}>
-                      <TableCell>{invoice.largeBusiness}</TableCell>
-                      <TableCell>{invoice.largeBusiness}</TableCell>
-                      <TableCell>${invoice.amount.toLocaleString()}</TableCell>
-                      <TableCell>{invoice.percentageGiven}%</TableCell>
-                      <TableCell>
-                        <Badge className={getStatusColor(invoice.status)}>
-                          {invoice.status}
-                        </Badge>
-                      </TableCell>
-                      <TableCell>
-                        {new Date(invoice.dueDate).toDateString()}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(invoice.dueDate).toDateString()}
-                      </TableCell>
-                      <TableCell>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
+                {filteredInvoices.map((invoice) => (
+                  <TableRow key={invoice.invoiceNumber}>
+                    <TableCell>{invoice.invoiceNumber}</TableCell>
+                    <TableCell>{invoice.largeBusiness}</TableCell>
+                    <TableCell>${invoice.amount.toLocaleString()}</TableCell>
+                    <TableCell>{invoice.percentageGiven}%</TableCell>
+                    <TableCell>
+                      <Badge className={getStatusColor(invoice.status)}>
+                        {invoice.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>{new Date(invoice.invoiceDate).toDateString()}</TableCell>
+                    <TableCell>{new Date(invoice.dueDate).toDateString()}</TableCell>
+                    <TableCell>
+                      <Dialog>
+                        <DialogTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            Invest Now
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                          <DialogHeader>
+                            <DialogTitle>
+                              Invoice No. - {invoice.invoiceNumber}
+                            </DialogTitle>
+                            <DialogDescription>
+                              Select the percentage of this invoice you'd like to invest into
+                            </DialogDescription>
+                          </DialogHeader>
+                          <div className="mb-4">
+                            <Label htmlFor="tokenize-percentage">
+                              Investment Percentage
+                            </Label>
+                            <div className="flex items-center gap-4">
+                              <Slider
+                                id="tokenize-percentage"
+                                min={1}
+                                max={50}
+                                step={1}
+                                value={investmentPercentage}
+                                onValueChange={setInvestmentPercentage}
+                              />
+                              <span>{investmentPercentage[0]}%</span>
+                            </div>
+                            <Button 
+                              onClick={() => handleInvestButton(invoice.invoiceNumber)}
+                              className="ml-44 mt-4 bg-blue-950 text-white"
+                            >
                               Invest Now
                             </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>
-                                Invoice Details - {invoice.invoiceNumber}
-                              </DialogTitle>
-                              <DialogDescription>
-                                View detailed information about this invoice.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="grid gap-4 py-4">
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">Business:</span>
-                                <span className="col-span-3">
-                                  {invoice.largeBusiness}
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">Amount:</span>
-                                <span className="col-span-3">
-                                  ${invoice.amount.toLocaleString()}
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">
-                                  Percentage Given:
-                                </span>
-                                <span className="col-span-3">
-                                  {invoice.percentageGiven}%
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">Status:</span>
-                                <span className="col-span-3">
-                                  <Badge
-                                    className={getStatusColor(invoice.status)}
-                                  >
-                                    {invoice.status}
-                                  </Badge>
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">Due Date:</span>
-                                <span className="col-span-3">
-                                  {new Date(invoice.dueDate).toDateString()}
-                                </span>
-                              </div>
-                              <div className="grid grid-cols-4 items-center gap-4">
-                                <span className="font-medium">
-                                  Invoice Date:
-                                </span>
-                                <span className="col-span-3">
-                                  {new Date(invoice.invoiceDate).toDateString()}
-                                </span>
-                              </div>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )}
+                          </div>
+                        </DialogContent>
+                      </Dialog>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           </CardContent>
