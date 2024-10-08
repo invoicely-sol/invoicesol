@@ -5,7 +5,7 @@ import { WavyBackground } from "../ui/wavy-background";
 const Hero = () => {
   return (
     <>
-    <WavyBackground className="max-w-4xl mx-auto pb-40">
+    <WavyBackground className="max-w-4xl mx-auto">
       <section
         id="home"
         className="relative overflow-hidden  md:pt-[100px]"
