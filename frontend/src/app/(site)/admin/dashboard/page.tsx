@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import {
@@ -18,7 +18,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
 import { Label } from "@/components/ui/label"
@@ -28,8 +27,8 @@ import { Search, Check, X } from "lucide-react"
 import idl from "../../../../../../anchor-codebase/target/idl/invoice_program.json";
 import { InvoiceProgram } from "../../../../../../anchor-codebase/target/types/invoice_program";
 
-import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
-import { AnchorProvider, BN, Idl, Program } from "@coral-xyz/anchor";
+import { useAnchorWallet } from "@solana/wallet-adapter-react";
+import { AnchorProvider, BN, Program } from "@coral-xyz/anchor";
 import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js"
 import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress } from "@solana/spl-token"
 
@@ -73,6 +72,23 @@ const mockInvoices: Invoice[] = [
   }
 ]
 
+const createSolanaConnection = () => {
+  const solanaEndpoint = process.env.NEXT_PUBLIC_SOLANA_ENDPOINT;
+
+  if (!solanaEndpoint) {
+    throw new Error("NEXT_PUBLIC_SOLANA_ENDPOINT environment variable is not defined");
+  }
+
+  try {
+    const connection = new Connection(solanaEndpoint, "confirmed");
+    console.log("Successfully connected to Solana:", solanaEndpoint);
+    return connection;
+  } catch (error) {
+    console.error("Error connecting to Solana:", error);
+    throw error;
+  }
+};
+
 export default function InvoiceManagement() {
   const [invoices, setInvoices] = useState<Invoice[]>(mockInvoices)
   const [searchTerm, setSearchTerm] = useState("")
@@ -82,10 +98,10 @@ export default function InvoiceManagement() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
 
-  const wallet = useAnchorWallet(); // Get connected wallet
-  // const { connection } = useConnection(); // Get connection
-  const connection = new Connection("https://solana-devnet.g.alchemy.com/v2/uiT3MAS-I4p2wKoclA3H7xQWkVm1rVuD", 
-    "confirmed");
+  const wallet = useAnchorWallet();
+  const connection = useMemo(() => {
+    return createSolanaConnection();
+  }, []);
 
   const filteredInvoices = invoices.filter(invoice =>
     invoice.smallBusinessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -125,11 +141,6 @@ export default function InvoiceManagement() {
       alert("Wallet not connected!");
       return;
     }
-
-    console.log("wallet:", wallet);
-  
-    console.log("invoiceId:", invoiceId);
-    console.log("invoiceAmount:", invoiceAmount);
   
     const provider = new AnchorProvider(connection, wallet, {
       preflightCommitment: "processed",
@@ -137,15 +148,15 @@ export default function InvoiceManagement() {
     const program = new Program<InvoiceProgram>(idl as unknown as InvoiceProgram, provider); 
   
     try {
-      // 1. Generate a new escrow account keypair
+      // Generate a new escrow account keypair
       const escrowAccount = Keypair.generate();
   
-      // 2. Fetch the Mint address of your INVO token
+      // Fetch the Mint address of your INVO token
       const invoMint = new PublicKey("BqtKU4izMcEZ7Ni8tMeZ1zsSnqwRYVZrqDoYmyS29FTi");
   
       const transaction = new Transaction();
 
-      // 3. Create the initializeEscrow transaction
+      // Create the initializeEscrow transaction
       const instructionOne = await program.methods
         .initializeEscrow(invoiceId.toString(), new BN(invoiceAmount)) 
         .accounts({
@@ -161,8 +172,6 @@ export default function InvoiceManagement() {
         escrowAccount.publicKey
       );
 
-      console.log('escrowTokenAccount:', escrowTokenAccount.toBase58())
-
       const instructionTwo = createAssociatedTokenAccountInstruction(
           provider.wallet.publicKey,
           escrowTokenAccount,
@@ -171,22 +180,16 @@ export default function InvoiceManagement() {
         );
 
       transaction.add(instructionOne, instructionTwo);
-
       transaction.feePayer = provider.wallet.publicKey;
       transaction.recentBlockhash = (
         await connection.getLatestBlockhash()
       ).blockhash;
-
       transaction.partialSign(escrowAccount);
-
       const signedTx = await provider?.wallet.signTransaction(transaction);
-      const txId = await provider.connection.sendRawTransaction(signedTx.serialize());
-  
-      console.log("Transaction Singature:", txId);
-  
+      await provider.connection.sendRawTransaction(signedTx.serialize());
+    
       // 4. Retrieve and store the escrow public key
       const escrowPublicKey = escrowAccount.publicKey.toBase58();
-      console.log("Escrow Public Key:", escrowPublicKey);
   
       // 5. Send the escrow public key to MongoDB
       // await saveEscrowToMongoDB(invoiceId, invoiceAmount, escrowPublicKey);
@@ -200,17 +203,12 @@ export default function InvoiceManagement() {
 
   const handleConfirmAction = async () => {
     if (selectedInvoice && actionType) {
-      console.log("Selected Invoice:", selectedInvoice);
       if (actionType === "approve") {
-        console.log("Selected actionType:", actionType);
         try {
-          // Call initializeEscrow with the selected invoice ID and amount
           const escrowPublicKey = await initializeEscrow(
             selectedInvoice.id,
-            selectedInvoice.amount // Assuming the invoice object has an 'amount' field
+            selectedInvoice.amount
           );
-
-          console.log("Escrow Public Key:", escrowPublicKey);
         } catch (error) {
           console.error("Failed to initialize escrow:", error);
           alert("Failed to initialize escrow. Please try again.");
@@ -307,17 +305,6 @@ export default function InvoiceManagement() {
                   >
                     <X className="mr-2 h-4 w-4" />
                     Reject
-                  </Button>
-                </div>
-              </TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => openDetailModal(invoice)}
-                  >
-                    Invest
                   </Button>
                 </div>
               </TableCell>
