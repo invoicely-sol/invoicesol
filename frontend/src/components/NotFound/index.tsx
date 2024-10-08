@@ -4,7 +4,7 @@ import Link from "next/link";
 
 const NotFound = () => {
   return (
-    <section className="bg-white py-20 dark:bg-dark-2 lg:py-[110px]">
+    <section className="  py-20 dark:bg-dark-2 lg:py-[110px]">
       <div className="container mx-auto">
         <div className="-mx-4 flex flex-wrap items-center">
           <div className="w-full px-4 md:w-5/12 lg:w-6/12">

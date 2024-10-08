@@ -79,7 +79,7 @@ const Header = () => {
                   height={10}
                   className="header-logo h-10 w-full"
                 />
-                <text className="text-white text-3xl ml-2">INVOICELY</text>
+                <text className="text-white text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-500 text-4xl ml-2">INVOICELY</text>
               </Link>
             </div>
             <div className="flex w-full items-center justify-between px-4">
@@ -93,34 +93,34 @@ const Header = () => {
                   <span
                     className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${
                       navbarOpen ? " top-[7px] rotate-45" : " "
-                    } ${pathUrl !== "/" && "!bg-dark dark:!bg-white"} ${
+                    } ${pathUrl !== "/" && "!bg-dark dark:! "} ${
                       pathUrl === "/" && sticky
-                        ? "bg-dark dark:bg-white"
-                        : "bg-white"
+                        ? "bg-dark dark: "
+                        : " "
                     }`}
                   />
                   <span
                     className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${
                       navbarOpen ? "opacity-0 " : " "
-                    } ${pathUrl !== "/" && "!bg-dark dark:!bg-white"} ${
+                    } ${pathUrl !== "/" && "!bg-dark dark:! "} ${
                       pathUrl === "/" && sticky
-                        ? "bg-dark dark:bg-white"
-                        : "bg-white"
+                        ? "bg-dark dark: "
+                        : " "
                     }`}
                   />
                   <span
                     className={`relative my-1.5 block h-0.5 w-[30px] transition-all duration-300 ${
                       navbarOpen ? " top-[-8px] -rotate-45" : " "
-                    } ${pathUrl !== "/" && "!bg-dark dark:!bg-white"} ${
+                    } ${pathUrl !== "/" && "!bg-dark dark:! "} ${
                       pathUrl === "/" && sticky
-                        ? "bg-dark dark:bg-white"
-                        : "bg-white"
+                        ? "bg-dark dark: "
+                        : " "
                     }`}
                   />
                 </button>
                 <nav
                   id="navbarCollapse"
-                  className={`navbar absolute right-0 z-30 w-[250px] rounded border-[.5px] border-body-color/50 bg-white px-6 py-4 duration-300 dark:border-body-color/20 dark:bg-dark-2 lg:visible lg:static lg:w-auto lg:border-none lg:!bg-transparent lg:p-0 lg:opacity-100 lg:dark:bg-transparent ${
+                  className={`navbar absolute right-0 z-30 w-[250px] rounded border-[.5px] border-body-color/50   px-6 py-4 duration-300 dark:border-body-color/20 dark:bg-dark-2 lg:visible lg:static lg:w-auto lg:border-none lg:!bg-transparent lg:p-0 lg:opacity-100 lg:dark:bg-transparent ${
                     navbarOpen
                       ? "visibility top-full opacity-100"
                       : "invisible top-[120%] opacity-0"
@@ -218,7 +218,7 @@ const Header = () => {
                             )}
 
                             <div
-                              className={`submenu relative left-0 top-full w-[250px] rounded-sm bg-white p-4 transition-[top] duration-300 group-hover:opacity-100 dark:bg-dark-2 lg:invisible lg:absolute lg:top-[110%] lg:block lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
+                              className={`submenu relative left-0 top-full w-[250px] rounded-sm   p-4 transition-[top] duration-300 group-hover:opacity-100 dark:bg-dark-2 lg:invisible lg:absolute lg:top-[110%] lg:block lg:opacity-0 lg:shadow-lg lg:group-hover:visible lg:group-hover:top-full ${
                                 openIndex === index ? "!-left-[25px]" : "hidden"
                               }`}
                             >
@@ -270,40 +270,24 @@ const Header = () => {
                           removeCookie("invoicely");
                           router.push("/");
                         }}
-                        className="signUpBtn rounded-lg bg-white bg-opacity-20 px-6 py-3 text-base font-medium text-white duration-300 ease-in-out hover:bg-opacity-100 hover:text-dark"
+                        className="rounded-lg bg-gradient-to-bl from-blue-500 to-pink-500 px-6 py-3 text-lg text-black font-bold hover:bg-gradient-to-r hover:from-blue-400 hover:to-pink-400 dark: /10 dark:hover: /20"
                       >
                         Sign Out
                       </button>
                     )}
-                    <WalletMultiButton className="wallet-button" />
+                    <WalletMultiButton className="" />
                   </>
                 ) : (
                   <>
-                    {pathUrl !== "/" ? (
-                      <div className="flex gap-3">
-                        <Link
-                          href="/signup"
-                          className="rounded-lg bg-primary px-6 py-3 text-base font-medium text-white duration-300 ease-in-out hover:bg-primary/90 dark:bg-white/10 dark:hover:bg-white/20"
-                        >
-                          Sign Up / Sign In
-                        </Link>
-                        <WalletMultiButton className="wallet-button" />
-                      </div>
-                    ) : (
-                      <div>
-                        <Link
-                          href="/signup"
-                          className={`rounded-lg px-6 py-3 text-base font-medium text-white duration-300 ease-in-out ${
-                            sticky
-                              ? "bg-primary hover:bg-primary/90 dark:bg-white/10 dark:hover:bg-white/20"
-                              : "bg-white/10 hover:bg-white/20"
-                          }`}
-                        >
-                          Sign Up / Sign In
-                        </Link>
-                        <WalletMultiButton />
-                      </div>
-                    )}
+                    <div className="flex gap-3">
+                      <Link
+                        href="/signup"
+                        className="rounded-lg bg-gradient-to-br from-blue-500 to-pink-500 px-6 py-3 text-lg text-white font-bold hover:bg-gradient-to-r hover:from-blue-400 hover:to-pink-400 dark: /10 dark:hover: /20"
+                      >
+                        Sign Up / Sign In
+                      </Link>
+                      <WalletMultiButton className="" />
+                    </div>
                   </>
                 )}
               </div>

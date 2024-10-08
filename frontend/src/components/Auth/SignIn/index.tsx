@@ -54,7 +54,7 @@ const Signin = () => {
         <div className="-mx-4 flex flex-wrap">
           <div className="w-full px-4">
             <div
-              className="wow fadeInUp relative mx-auto max-w-[525px] overflow-hidden rounded-lg bg-white px-8 py-14 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]"
+              className="wow fadeInUp relative mx-auto max-w-[525px] overflow-hidden rounded-lg   px-8 py-14 text-center dark:bg-dark-2 sm:px-12 md:px-[60px]"
               data-wow-delay=".15s"
             >
               <div className="mb-10 text-center">
@@ -80,7 +80,7 @@ const Signin = () => {
 
               <span className="z-1 relative my-8 block text-center">
                 <span className="-z-1 absolute left-0 top-1/2 block h-px w-full bg-stroke dark:bg-dark-3"></span>
-                <span className="text-body-secondary relative z-10 inline-block bg-white px-3 text-base dark:bg-dark-2">
+                <span className="text-body-secondary relative z-10 inline-block   px-3 text-base dark:bg-dark-2">
                   OR
                 </span>
               </span>
