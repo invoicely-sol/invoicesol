@@ -25,6 +25,14 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Search, Check, X } from "lucide-react"
 
+import idl from "../../../../../../anchor-codebase/target/idl/invoice_program.json";
+import { InvoiceProgram } from "../../../../../../anchor-codebase/target/types/invoice_program";
+
+import { useAnchorWallet, useConnection } from "@solana/wallet-adapter-react";
+import { AnchorProvider, BN, Idl, Program } from "@coral-xyz/anchor";
+import { Connection, Keypair, PublicKey, SystemProgram, Transaction } from "@solana/web3.js"
+import { createAssociatedTokenAccountInstruction, getAssociatedTokenAddress } from "@solana/spl-token"
+
 type Invoice = {
   id: string
   smallBusinessName: string
@@ -74,6 +82,11 @@ export default function InvoiceManagement() {
   const [actionType, setActionType] = useState<"approve" | "reject" | null>(null)
   const [rejectionReason, setRejectionReason] = useState("")
 
+  const wallet = useAnchorWallet(); // Get connected wallet
+  // const { connection } = useConnection(); // Get connection
+  const connection = new Connection("https://solana-devnet.g.alchemy.com/v2/uiT3MAS-I4p2wKoclA3H7xQWkVm1rVuD", 
+    "confirmed");
+
   const filteredInvoices = invoices.filter(invoice =>
     invoice.smallBusinessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
     invoice.largeBusinessName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -107,10 +120,106 @@ export default function InvoiceManagement() {
     setRejectionReason("")
   }
 
-  const handleConfirmAction = () => {
+  const initializeEscrow = async (invoiceId: String, invoiceAmount: number) => {
+    if (!wallet) {
+      alert("Wallet not connected!");
+      return;
+    }
+
+    console.log("wallet:", wallet);
+  
+    console.log("invoiceId:", invoiceId);
+    console.log("invoiceAmount:", invoiceAmount);
+  
+    const provider = new AnchorProvider(connection, wallet, {
+      preflightCommitment: "processed",
+    });
+    const program = new Program<InvoiceProgram>(idl as unknown as InvoiceProgram, provider); 
+  
+    try {
+      // 1. Generate a new escrow account keypair
+      const escrowAccount = Keypair.generate();
+  
+      // 2. Fetch the Mint address of your INVO token
+      const invoMint = new PublicKey("BqtKU4izMcEZ7Ni8tMeZ1zsSnqwRYVZrqDoYmyS29FTi");
+  
+      const transaction = new Transaction();
+
+      // 3. Create the initializeEscrow transaction
+      const instructionOne = await program.methods
+        .initializeEscrow(invoiceId.toString(), new BN(invoiceAmount)) 
+        .accounts({
+          escrowAccount: escrowAccount.publicKey,
+          user: provider.wallet.publicKey,
+          invoMint
+        })
+        .instruction();
+      
+
+      const escrowTokenAccount = await getAssociatedTokenAddress(
+        invoMint,
+        escrowAccount.publicKey
+      );
+
+      console.log('escrowTokenAccount:', escrowTokenAccount.toBase58())
+
+      const instructionTwo = createAssociatedTokenAccountInstruction(
+          provider.wallet.publicKey,
+          escrowTokenAccount,
+          escrowAccount.publicKey,
+          invoMint
+        );
+
+      transaction.add(instructionOne, instructionTwo);
+
+      transaction.feePayer = provider.wallet.publicKey;
+      transaction.recentBlockhash = (
+        await connection.getLatestBlockhash()
+      ).blockhash;
+
+      transaction.partialSign(escrowAccount);
+
+      const signedTx = await provider?.wallet.signTransaction(transaction);
+      const txId = await provider.connection.sendRawTransaction(signedTx.serialize());
+  
+      console.log("Transaction Singature:", txId);
+  
+      // 4. Retrieve and store the escrow public key
+      const escrowPublicKey = escrowAccount.publicKey.toBase58();
+      console.log("Escrow Public Key:", escrowPublicKey);
+  
+      // 5. Send the escrow public key to MongoDB
+      // await saveEscrowToMongoDB(invoiceId, invoiceAmount, escrowPublicKey);
+  
+      return escrowPublicKey; // Return the escrow public key if needed elsewhere
+    } catch (error) {
+      console.error("Error initializing escrow:", error);
+      alert("Failed to initialize escrow. Please try again.");
+    }
+  };
+
+  const handleConfirmAction = async () => {
     if (selectedInvoice && actionType) {
+      console.log("Selected Invoice:", selectedInvoice);
+      if (actionType === "approve") {
+        console.log("Selected actionType:", actionType);
+        try {
+          // Call initializeEscrow with the selected invoice ID and amount
+          const escrowPublicKey = await initializeEscrow(
+            selectedInvoice.id,
+            selectedInvoice.amount // Assuming the invoice object has an 'amount' field
+          );
+
+          console.log("Escrow Public Key:", escrowPublicKey);
+        } catch (error) {
+          console.error("Failed to initialize escrow:", error);
+          alert("Failed to initialize escrow. Please try again.");
+          throw error
+        }
+      }
       const updatedInvoices: Invoice[] = invoices.map(invoice => {
         if (invoice.id === selectedInvoice.id) {
+          
           return {
             ...invoice,
             status: actionType === "approve" ? "Approved" : "Rejected"
@@ -119,6 +228,7 @@ export default function InvoiceManagement() {
         return invoice
       })
       setInvoices(updatedInvoices)
+    
       closeConfirmModal()
       closeDetailModal()
     }
@@ -197,6 +307,17 @@ export default function InvoiceManagement() {
                   >
                     <X className="mr-2 h-4 w-4" />
                     Reject
+                  </Button>
+                </div>
+              </TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => openDetailModal(invoice)}
+                  >
+                    Invest
                   </Button>
                 </div>
               </TableCell>
