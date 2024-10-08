@@ -10,8 +10,7 @@ export const metadata: Metadata = {
 const InvestorSignupPage = () => {
   return (
     <>
-      <Breadcrumb pageName="Business - Sign Up Page" />
-
+      <Breadcrumb pageName="Investor - Sign Up Page" />
       <CustomerSignUp role="investor"/>
     </>
   );

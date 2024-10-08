@@ -40,7 +40,7 @@ const CustomerSignin = ({role}: {role:string}) => {
       const token = resp.token;
       toast.success("Sign In Successful");
       setLoading(false);
-      router.push(role === "business-sm" ? "/invoices" : (role === "business-lg" ? "/lgbusiness/dashboard" : ""))
+      router.push(role === "business-sm" ? "/invoices" : (role === "business-lg" ? "/lgbusiness/dashboard" : "/investor/dashboard"))
     }
   };
 
